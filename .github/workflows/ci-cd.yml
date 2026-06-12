@@ -64,6 +64,42 @@ jobs:
             --ignore-url 'cdn.jsdelivr.net' \
             file://${{ github.workspace }}/index.html || true
 
+  docker-build:
+    name: Build & Push Docker Image
+    runs-on: ubuntu-latest
+    needs: [validate]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Generate image tags
+        id: meta
+        run: |
+          echo "sha=${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+          echo "repo=$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_OUTPUT"
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: |
+            ${{ steps.meta.outputs.repo }}:latest
+            ${{ steps.meta.outputs.repo }}:${{ steps.meta.outputs.sha }}
+
   deploy:
     name: Deploy to CyberPanel (FTP)
     runs-on: ubuntu-latest
@@ -94,6 +130,8 @@ jobs:
             **/.github/**
             *.md
             CICD_Pipeline_Lab_Manual*.docx
+            Dockerfile
+            .dockerignore
 
       - name: Write deployment summary
         run: |
@@ -137,7 +175,7 @@ jobs:
   notify-on-failure:
     name: Notify on Failure
     runs-on: ubuntu-latest
-    needs: [validate, deploy, verify-deploy]
+    needs: [validate, deploy, verify-deploy, docker-build]
     if: failure() && github.ref == 'refs/heads/main'
     permissions:
       contents: read

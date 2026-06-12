@@ -1,0 +1,7 @@
+.git/
+.gitignore
+.github/
+.gitattributes
+*.md
+CICD_Pipeline_Lab_Manual*.docx
+node_modules/
