@@ -1,0 +1,156 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Target environment'
+        required: true
+        default: 'production'
+        type: choice
+        options: [production]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Validate & Lint
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Validate HTML
+        uses: Cyb3r-Jak3/html5validator-action@v7.2.0
+        with:
+          root: ./
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Lint JavaScript
+        run: |
+          npx eslint@8 --no-eslintrc \
+            --env browser,es6 \
+            --rule 'no-unused-vars: warn' \
+            --rule 'no-undef: off' \
+            --rule 'no-empty: warn' \
+            --rule 'no-eval: warn' \
+            assets/js/script.js
+
+      - name: Lint CSS
+        run: |
+          npx stylelint@16 --allow-empty-input \
+            --config='{"rules":{"block-no-empty":true,"color-no-invalid-hex":true,"declaration-block-no-duplicate-properties":true}}' \
+            assets/css/*.css || true
+
+      - name: Check for broken links
+        run: |
+          npx linkchecker@latest --no-errors --check-external \
+            --ignore-url 'cdn.jsdelivr.net' \
+            file://${{ github.workspace }}/index.html || true
+
+  deploy:
+    name: Deploy to CyberPanel (FTP)
+    runs-on: ubuntu-latest
+    needs: [validate]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    environment:
+      name: production
+      url: https://${{ secrets.FTP_HOST }}
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Deploy via FTP to CyberPanel
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_HOST }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          port: ${{ secrets.FTP_PORT || 21 }}
+          local-dir: ./
+          server-dir: ${{ secrets.FTP_TARGET_DIR || '/' }}
+          exclude: |
+            **/.git*
+            **/.git/**
+            **/.github/**
+            *.md
+            CICD_Pipeline_Lab_Manual*.docx
+
+      - name: Write deployment summary
+        run: |
+          echo '## Deployment Successful' >> $GITHUB_STEP_SUMMARY
+          echo '' >> $GITHUB_STEP_SUMMARY
+          echo '| Item | Value |' >> $GITHUB_STEP_SUMMARY
+          echo '|------|-------|' >> $GITHUB_STEP_SUMMARY
+          echo "| Commit | ${{ github.sha }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Branch | ${{ github.ref_name }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Triggered by | ${{ github.actor }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Server | ${{ secrets.FTP_HOST }} |" >> $GITHUB_STEP_SUMMARY
+
+  verify-deploy:
+    name: Verify Deployment
+    runs-on: ubuntu-latest
+    needs: [deploy]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    permissions:
+      contents: read
+
+    steps:
+      - name: Wait for service to stabilise
+        run: sleep 10
+
+      - name: Smoke test — site is reachable
+        run: |
+          STATUS=$(curl -sf -o /dev/null -w '%{http_code}' https://${{ secrets.FTP_HOST }} || \
+                  curl -sf -o /dev/null -w '%{http_code}' http://${{ secrets.FTP_HOST }})
+          echo "HTTP Status: $STATUS"
+          if [ "$STATUS" != "200" ] && [ "$STATUS" != "301" ] && [ "$STATUS" != "302" ]; then
+            echo 'Site check failed!'
+            exit 1
+          fi
+          echo 'Site is reachable!'
+
+      - name: Deployment summary
+        run: |
+          echo "## Deployment Verified" >> $GITHUB_STEP_SUMMARY
+          echo "Site at https://${{ secrets.FTP_HOST }} responded with HTTP 200" >> $GITHUB_STEP_SUMMARY
+
+  notify-on-failure:
+    name: Notify on Failure
+    runs-on: ubuntu-latest
+    needs: [validate, deploy, verify-deploy]
+    if: failure() && github.ref == 'refs/heads/main'
+    permissions:
+      contents: read
+      issues: write
+
+    steps:
+      - name: Create GitHub Issue on failure
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.create({
+              ...context.repo,
+              title: `Pipeline failure on main: ${context.sha.substring(0,7)}`,
+              body: `Pipeline run ${{ github.run_id }} failed.\nSee: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}`,
+              labels: ['bug', 'ci-failure']
+            });

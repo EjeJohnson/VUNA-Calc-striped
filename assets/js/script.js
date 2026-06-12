@@ -172,7 +172,7 @@ function calculateResult() {
     result = String(result);
 
     // Save result for future expressions
-    LAST_RESULT = result;
+    LAST_RESULT = result !== "Error" ? parseFloat(result) : 0;
 
     // Display normally
     display.value = result;

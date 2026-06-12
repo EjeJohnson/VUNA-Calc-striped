@@ -1,0 +1,16 @@
+{
+  "private": true,
+  "name": "vuna-calc",
+  "version": "1.0.0",
+  "description": "VUNA Calculator",
+  "devDependencies": {
+    "eslint": "^8.57.0",
+    "stylelint": "^16.0.0",
+    "linkchecker": "^1.0.0"
+  },
+  "scripts": {
+    "lint:js": "eslint assets/js/script.js",
+    "lint:css": "stylelint assets/css/*.css",
+    "lint": "npm run lint:js && npm run lint:css"
+  }
+}

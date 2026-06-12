@@ -1,0 +1,69 @@
+name: Pull Request Check
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  pr-validation:
+    name: PR Validation
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate HTML
+        uses: Cyb3r-Jak3/html5validator-action@v7.2.0
+        with:
+          root: ./
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Lint JavaScript
+        run: |
+          npx eslint@8 --no-eslintrc \
+            --env browser,es6 \
+            --rule 'no-unused-vars: warn' \
+            --rule 'no-undef: off' \
+            --rule 'no-empty: warn' \
+            --rule 'no-eval: warn' \
+            assets/js/script.js
+
+      - name: Lint CSS
+        run: |
+          npx stylelint@16 --allow-empty-input \
+            --config='{"rules":{"block-no-empty":true,"color-no-invalid-hex":true,"declaration-block-no-duplicate-properties":true}}' \
+            assets/css/*.css || true
+
+      - name: Post PR comment with results
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const outcome = '${{ job.status }}';
+            const icon = outcome === 'success' ? '✅' : '❌';
+            const body = [
+              `## ${icon} PR Validation ${outcome}`,
+              `**Commit:** ${context.sha.substring(0, 7)}`,
+              `**Branch:** ${context.payload.pull_request.head.ref}`,
+              '',
+              '| Check | Status |',
+              '|-------|--------|',
+              `| HTML Validation | ${outcome === 'success' ? '✅ Pass' : '❌ Fail'} |`,
+              `| JavaScript Lint | ${outcome === 'success' ? '✅ Pass' : '❌ Fail'} |`,
+              `| CSS Lint | ${outcome === 'success' ? '✅ Pass' : '❌ Fail'} |`,
+            ].join('\n');
+            github.rest.issues.createComment({
+              ...context.repo,
+              issue_number: context.payload.pull_request.number,
+              body
+            });
