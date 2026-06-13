@@ -118,7 +118,7 @@ function percentToResult() {
     let leftVal;
 
     try {
-      leftVal = eval(leftPart);
+      leftVal = Function(`"use strict"; return (${leftPart})`)();
     } catch (e) {
       leftVal = parseFloat(leftPart);
     }
@@ -152,7 +152,7 @@ function calculateExpression(expression) {
     );
 
     // Calculate result
-    let result = eval(normalizedExpression);
+    let result = Function(`"use strict"; return (${normalizedExpression})`)();
     console.log("Calculated result for expression:", expression, "->", result);
  
     if (isNaN(result) || !isFinite(result)) {
