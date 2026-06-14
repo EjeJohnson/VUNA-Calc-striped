@@ -1,88 +1,113 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Calculator</title>
-  <link rel="stylesheet" href="assets/css/bootstrap.min.css" />
-  <link rel="stylesheet" href="assets/css/styles.css">
+  <title>VelvetEdge — Premium Shaving Cream</title>
+  <link rel="stylesheet" href="assets/css/landing.css" />
 </head>
-
 <body>
-  <!-- Theme Toggle Button -->
-  <button class="btn btn-outline-secondary theme-toggle-btn" id="theme-toggle" onclick="toggleTheme()"
-    title="Toggle dark/light mode">
-    🌙
-  </button>
-  <div class="container">
-    <div class="row justify-content-center">
-      <div class="col-lg-6 col-md-6 col-sm-8">
-        <div class="border border-dotted border-3 rounded-3 p-3 mb-4 bg-white bg-opacity-50">
-          <h4 class="text-center group-header mb-0">VUNA CALCULATOR</h4>
-          <p class="text-center text-small text-muted">
-            <i>Created by set 2025/26 Software Engineering</i>
-          </p>
-        </div>
-        <div class="row">
-          <div class="col-md-12">
-            <div class="card calculator-card">
-              <div class="card-body p-4">
-                <div class="calculator">
-                  <div class="display-container">
-                    <input type="text" class="form-control" id="result" placeholder="0" disabled />
-                  </div>
 
-                  <div class="btn-grid">
-                    <button class="btn btn-light" onclick="bracketToResult('(')">(</button>
-                    <button class="btn btn-light" onclick="bracketToResult(')')">)</button>
-                    <button class="btn btn-light" onclick="backspace()">←</button>
+  <!-- NAVBAR -->
+  <nav class="navbar" id="navbar">
+    <a href="#" class="nav-logo">VELVETEDGE</a>
+    <ul class="nav-links">
+      <li><a href="#features">Features</a></li>
+      <li><a href="#product">Product</a></li>
+      <li><a href="#reviews">Reviews</a></li>
+      <li><a href="#cta" class="nav-cta">Shop Now</a></li>
+    </ul>
+  </nav>
 
-                    <!-- Row trig -->
-                    <button class="btn btn-action" onclick="clearResult()">AC</button>
+  <!-- HERO -->
+  <section class="hero" id="hero">
+    <div class="hero-content">
+      <h1>The Last Shave<br>You'll <span>Ever</span> Need</h1>
+      <p>Engineered for closeness. Infused with botanicals. Zero irritation. Welcome to the future of grooming.</p>
+      <a href="#cta" class="btn-primary-custom">Try VelvetEdge Today</a>
+    </div>
+  </section>
 
-                    <!-- Row 2 -->
-                    <button class="btn btn-light" onclick="appendToResult(7)">7</button>
-                    <button class="btn btn-light" onclick="appendToResult(8)">8</button>
-                    <button class="btn btn-light" onclick="appendToResult(9)">9</button>
-
-                    <!-- Row 3 -->
-                    <button class="btn btn-operator" onclick="operatorToResult('/')">÷</button>
-                    <button class="btn btn-light" onclick="appendToResult(4)">4</button>
-                    <button class="btn btn-light" onclick="appendToResult(5)">5</button>
-                    <button class="btn btn-light" onclick="appendToResult(6)">6</button>
-
-                    <!-- Row 4 -->
-                    <button class="btn btn-operator" onclick="operatorToResult('*')">×</button>
-                    <button class="btn btn-light" onclick="appendToResult(1)">1</button>
-                    <button class="btn btn-light" onclick="appendToResult(2)">2</button>
-                    <button class="btn btn-light" onclick="appendToResult(3)">3</button>
-
-                    <!-- Row 5 -->
-                    <button class="btn btn-operator" onclick="operatorToResult('+')">+</button>
-                    <button class="btn btn-light" onclick="appendToResult('.')">.</button>
-                    <button class="btn btn-light" onclick="appendToResult(0)">0</button>
-                    <button class="btn btn-operator" onclick="percentToResult()">%</button>
-                    
-                    <!-- Row 9 -->
-                    <button class="btn btn-operator" onclick="operatorToResult('-')">−</button>
-
-                    <button class="btn btn-equals" onclick="calculateResult()" style="grid-column: span 4;">=</button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-        </div>
-          <script src="assets/js/bootstrap.min.js"></script>
-          <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
-          <script src="assets/js/script.js"></script>
-          <button id="scroll-to-calculator" title="Back to Calculator">↑</button>
+  <!-- FEATURES -->
+  <section class="features" id="features">
+    <h2 class="section-title">Why VelvetEdge?</h2>
+    <p class="section-subtitle">Three reasons our customers never go back to their old razor routine.</p>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">🛡️</div>
+        <h3>Zero Irritation</h3>
+        <p>Aloe &amp; chamomile-infused formula creates a protective barrier so your skin stays calm, even on the most sensitive days.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">✨</div>
+        <h3>Silky Glide</h3>
+        <p>Micro-lather technology lifts hair for an impossibly close cut in a single pass — fewer strokes, less razor burn.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🌿</div>
+        <h3>Clean Ingredients</h3>
+        <p>No parabens, no sulfates, no artificial fragrances. Just premium, sustainably sourced botanicals your skin will thank you for.</p>
       </div>
     </div>
-  </div>
+  </section>
+
+  <!-- PRODUCT -->
+  <section class="product" id="product">
+    <div class="product-visual">🧴</div>
+    <div class="product-info">
+      <h2>VelvetEdge Signature Cream</h2>
+      <p>Our flagship formula blends shea butter, eucalyptus oil, and activated charcoal for a shave that feels like a ritual, not a chore.</p>
+      <ul>
+        <li>200ml premium tin — lasts 8+ weeks</li>
+        <li>Razor-safe micro-lather formula</li>
+        <li>Subtle sandalwood &amp; cedar scent</li>
+        <li>Cruelty-free &amp; vegan</li>
+      </ul>
+      <a href="#cta" class="btn-primary-custom">Order Now — $24</a>
+    </div>
+  </section>
+
+  <!-- TESTIMONIALS -->
+  <section class="testimonials" id="reviews">
+    <h2 class="section-title">What People Say</h2>
+    <p class="section-subtitle">Thousands of men have made the switch. Here's what they think.</p>
+    <div class="testimonial-grid">
+      <div class="testimonial-card">
+        <div class="stars">★★★★★</div>
+        <p>"I've tried every cream on the market. VelvetEdge is the first one that doesn't leave my neck red for hours. Game changer."</p>
+        <div class="testimonial-author">— Marcus T.</div>
+      </div>
+      <div class="testimonial-card">
+        <div class="stars">★★★★★</div>
+        <p>"The scent alone is worth it. Subtle, masculine, and it fades just right. Plus the lather is incredibly smooth."</p>
+        <div class="testimonial-author">— Daniel K.</div>
+      </div>
+      <div class="testimonial-card">
+        <div class="stars">★★★★★</div>
+        <p>"My girlfriend bought it for me as a gift. Now I buy it for myself. Best shaving cream I've ever used, hands down."</p>
+        <div class="testimonial-author">— James R.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta" id="cta">
+    <h2>Ready for Your Best Shave?</h2>
+    <p>Join thousands who've upgraded their morning routine. Order today and get free shipping.</p>
+    <a href="#" class="btn-primary-custom">Shop VelvetEdge — $24</a>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <p>&copy; 2026 VelvetEdge Grooming Co. All rights reserved.</p>
+  </footer>
+
+  <!-- Scroll-based navbar background -->
+  <script>
+    window.addEventListener('scroll', () => {
+      document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 50);
+    });
+  </script>
+
 </body>
-
 </html>
-
