@@ -148,7 +148,7 @@ function calculateExpression(expression) {
     // 🧠 Replace "ans" with last result automatically
     normalizedExpression = normalizedExpression.replace(
       /\bans\b/gi,
-      LAST_RESULT,
+      LAST_RESULT
     );
 
     // Calculate result
