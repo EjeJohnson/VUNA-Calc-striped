@@ -108,7 +108,6 @@ jobs:
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     environment:
       name: production
-      url: https://${{ secrets.FTP_HOST }}
     permissions:
       contents: read
 
