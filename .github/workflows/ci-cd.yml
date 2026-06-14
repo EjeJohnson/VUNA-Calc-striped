@@ -50,19 +50,20 @@ jobs:
             --rule 'no-undef: off' \
             --rule 'no-empty: warn' \
             --rule 'no-eval: warn' \
-            assets/js/script.js
+            calculator/assets/js/script.js
 
       - name: Lint CSS
         run: |
           npx stylelint@16 --allow-empty-input \
             --config='{"rules":{"block-no-empty":true,"color-no-invalid-hex":true,"declaration-block-no-duplicate-properties":true}}' \
-            assets/css/*.css || true
+            assets/css/*.css calculator/assets/css/*.css || true
 
       - name: Check for broken links
         run: |
           npx linkchecker@latest --no-errors --check-external \
             --ignore-url 'cdn.jsdelivr.net' \
-            file://${{ github.workspace }}/index.html || true
+            file://${{ github.workspace }}/index.html \
+            file://${{ github.workspace }}/calculator/index.html || true
 
   docker-build:
     name: Build & Push Docker Image
